@@ -1,0 +1,13 @@
+{
+    "POLL_INTERVAL" : 60,
+    "SERVER_HOSTNAME" : "",
+    "SERVER_PORT" : 9997,
+    "ROOT_PASSWORD" : "pswd",
+    "CONFIG_FILE_LOCATION" : "",
+    "LOGS_DIRECTORY" : "",
+    "SMS_ENABLED" : false,
+    "SMS_PROVIDER" : "",
+    "TWILIO_SID" : "",
+    "TWILIO_AUTHTOKEN" : "",
+    "TWILIO_NUMBER" : ""
+}

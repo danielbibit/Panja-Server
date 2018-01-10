@@ -36,3 +36,12 @@ instance/
 .venv
 venv/
 ENV/
+
+# user stuff
+/.vscode
+/drafts
+/logs
+*.pyc
+*.log
+*.db
+config.json

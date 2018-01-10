@@ -1,0 +1,2 @@
+sqlalchemy>=1.1.13
+passlib>=1.7.1

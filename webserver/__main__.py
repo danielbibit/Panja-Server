@@ -29,6 +29,21 @@ dictionary = {
 	'argument' : ''
 }
 
+@app.route('/', methods=['GET'])
+def index():
+	return app.send_static_file('index.html')
+
+@app.route('/login', methods=['GET', 'POST'])
+def login():
+	return app.send_static_file('login.html')
+
+@app.route('/logout', methods=['GET', 'POST'])
+def logout():
+	return 'Goodbye'
+
+@app.route('/modules', methods=['GET', 'POST'])
+def modules():
+	return 'heres your update'
 
 @app.route('/services/ifttt', methods=['POST'])
 def ifttt_service():
