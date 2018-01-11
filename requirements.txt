@@ -1,2 +1,5 @@
+Flask>=0.12.2
+Flask-Login>=0.4.1
+requests>=2.18.4
 sqlalchemy>=1.1.13
 passlib>=1.7.1

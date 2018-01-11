@@ -1,0 +1,4 @@
+{
+    "CONFIG_USER_NOT_FOUND" : "Create your config.json file using the config.template.json as a template, to use this software",
+    "COULD_NOT_PARSE_JSON" : ""
+}
