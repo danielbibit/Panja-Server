@@ -6,8 +6,6 @@ import logging
 from logging.handlers import RotatingFileHandler
 import json
 
-#Only for MY machine
-sys.path.remove('/media/sf_Dropbox/Code/Python/Panja-Server')
 
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
