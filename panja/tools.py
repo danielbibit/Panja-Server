@@ -2,9 +2,23 @@ from panja import common
 
 
 def get_module(name):
-    for i in common.modules:
-        if i.name == name:
-            return i
+    for module in common.modules:
+        if module.name == name:
+            return module
+    return None
+
+
+def get_room(name):
+    for room in common.rooms:
+        if room.name == name:
+            return room
+    return None
+
+
+def get_user(name):
+    for user in common.users:
+        if user.name == name:
+            return user
     return None
 
 

@@ -3,8 +3,10 @@ import os
 import threading
 import time
 import logging
+from logging.handlers import RotatingFileHandler
 import json
 
+#Only for MY machine
 sys.path.remove('/media/sf_Dropbox/Code/Python/Panja-Server')
 
 from sqlalchemy import create_engine
@@ -12,6 +14,7 @@ from sqlalchemy.orm import sessionmaker
 
 from flask import Flask
 from flask import request
+from flask import render_template
 
 import panja
 from panja import user
@@ -49,8 +52,10 @@ root = user.User('root', 'root', 'root@panja.com.br', 'root', True)
 
 common.modules.append(board)
 common.modules.append(sensor)
+
 common.rooms.append(quarto_daniel)
 common.rooms.append(quarto_laura)
+
 common.users.append(daniel)
 common.users.append(laura)
 common.users.append(root)
@@ -63,11 +68,15 @@ def poller():
             module.sync()
 
         print('alive')
-        # app.logger.debug('alive')
-        # logging.debug(json.dumps(tools.generate_server_model(), sort_keys=True, indent=4))
+        # app.logger.info('alive')
+        print(json.dumps(tools.generate_server_model(), sort_keys=True, indent=4))
 
 
 def main():
+    # handler = RotatingFileHandler('foo.log', maxBytes=10000, backupCount=1)
+    # handler.setLevel(logging.INFO)
+    # app.logger.addHandler(handler)
+    
     # logging.basicConfig(
     #     filename=common.PANJADIR + '/../logs/main.log', 
     #     level=logging.DEBUG, 
@@ -77,31 +86,27 @@ def main():
     
     if not os.path.isfile(common.PANJADIR + '/config.json'):
         print(common.error_strings['CONFIG_USER_NOT_FOUND'])
-        # logging.error('Exiting: ' + common.error_strings['CONFIG_USER_NOT_FOUND'])
         exit()
 
     engine = create_engine('sqlite:///' + os.getcwd() +  '/database.db')
     session = sessionmaker()
     session.configure(bind=engine)
-    
-    # print(panja.__version__)
-    # logging.debug(panja.__version__)
-    
-    # try:
+
     poller_thread = threading.Thread(target=poller)
     poller_thread.daemon = True
     poller_thread.start()
-        # logging.info('Poller thread started in: ' + poller_thread.name)
+    print('Poller thread started in: ' + poller_thread.name)
 
-    #     logging.info('Main server started at: ' + time.asctime())
+    print('Main server started at: ' + time.asctime())
 
-    #     # poller_thread.join()
+    app.run(host='0.0.0.0', threaded=True)
 
-    # except KeyboardInterrupt:
-    #     logging.info('Server terminated')
-    #     exit()
-    
-    app.run(host='0.0.0.0')
+
+@app.route('/test', methods=['GET', 'POST'])
+def test():
+    room_model = tools.generate_server_model()
+
+    return render_template('layout.html', rooms=room_model)
 
 
 @app.route('/', methods=['GET'])
@@ -128,7 +133,8 @@ def web_client():
 def clients():
     print(request.form)
     print(request.args)
-    # if request.args.get('key') == 'mykey' and request.args.get('action') == 'toggle':
+    # room = tools.get_room(request.form['room'])
+    # room.  
     if request.args.get('action') == 'toggle':
         board.toggle_relay(int(request.args.get('args')))
         return 'done'
@@ -141,9 +147,18 @@ def clients():
 
 @app.route('/modules', methods=['POST'])
 def modules():
-    data = request.get_json()
-    print(data)
-    return 'thanks for being a moduled'
+    try:
+        json_data = request.get_json()
+
+        print(json_data)
+
+        for module in common.modules:
+            if module.name == json_data['name']:
+                module.process_data(json_data)
+
+        return 'thanks for being a moduled'
+    except KeyError as e:
+        return 'thanks for being a useless moduled'
 
 
 @app.route('/services/ifttt', methods=['POST'])
@@ -172,6 +187,5 @@ def ifttt_service():
 
 
 if __name__ == '__main__':
-    #main()
     print(panja.__version__)
-    app.run(host='0.0.0.0')
+    app.run(host='0.0.0.0', threaded=True)

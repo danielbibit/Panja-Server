@@ -5,8 +5,6 @@ import requests
 from sqlalchemy import Column, Integer, String
 from sqlalchemy.ext.declarative import declarative_base
 
-#from panja import tcp
-
 Base = declarative_base()
 
 
@@ -17,7 +15,7 @@ class RelayBoard(Base):
     id = Column(Integer, primary_key=True)
     
     #url = Column(String)
-    url = 'http://esp-2'
+    url = ''
     
     #key = Column(String)
     key = ''
@@ -47,10 +45,12 @@ class RelayBoard(Base):
         try:
             if json_data['action'] == 'status':
                 self.set_states(json_data['argument'])
-                logging.debug(self.get_states())
+                #logging.debug(self.get_states())
+                print(self.get_states())
 
             elif json_data['action'] == 'error':
-                logging.error(self.name + ', got the error : ' + json_data['argument'])
+                #logging.error(self.name + ', got the error : ' + json_data['argument'])
+                pass
 
         except KeyError:
             pass

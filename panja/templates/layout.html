@@ -1,0 +1,36 @@
+<html>
+    <head>
+        <title>Panja !</title>
+    </head>
+
+    <body>
+        <script>
+            function sendAction(room, action, args) {
+                var xhttp = new XMLHttpRequest();
+                xhttp.onreadystatechange = function() {
+                    if (this.readyState == 4 && this.status == 200) {
+                        document.getElementById("demo").innerHTML = this.responseText;
+                    }
+                };
+                xhttp.open("POST", "/clients", true);
+                //xhttp.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
+                xhttp.send("action=toggle&args=0");
+                xhttp.send("room="+room+"&action="+action+"&args="+args)
+                location.reload(true);
+            }
+        </script>
+            
+        <div>
+            <h1>Panja! Experimental Webclient</h1>
+            {% for room_name, room in rooms['rooms'].items() %}
+                <h2> {{ room_name }} </h2>
+                {% for label, state in room['ACTUATORS'].items() %}
+                    <h3> {{ label }} : {{ state }} : <button type="button" onclick="sendAction('{{room_name}}', 'toggle', '{{label}}')">toggle</button> </h3>
+                {% endfor %}
+                <br>
+            {% else %}
+                <h1> No entrys !!!</h1>
+            {% endfor %}
+        </div>
+    </body>
+</html>

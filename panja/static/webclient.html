@@ -1,4 +1,17 @@
 <html>
+    <script>
+        function loadDoc() {
+            var xhttp = new XMLHttpRequest();
+            xhttp.onreadystatechange = function() {
+                if (this.readyState == 4 && this.status == 200) {
+                    document.getElementById("demo").innerHTML = this.responseText;
+                }
+            };
+            xhttp.open("POST", "/clients", true);
+            xhttp.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
+            xhttp.send("action=toggle&args=0");
+        }
+    </script>
     <form action="http://panja-server:5000/clients" method="get">
         action: <input type="text" name="action"><br>
         argument: <input type="text" name="args"><br>

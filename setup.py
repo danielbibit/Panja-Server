@@ -6,7 +6,7 @@ install_requires = [
 ]
 
 setup(name='panja',
-      version='0.0.59',
+      version='0.0.1',
       description='Home automation server',
       author='Daniel Moraes dos Santos',
       author_email='danielbibit@gmail.com',
