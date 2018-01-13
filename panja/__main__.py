@@ -1,20 +1,17 @@
-import sys
 import os
-import threading
+import sys
 import time
+import threading
+import json
 import logging
 from logging.handlers import RotatingFileHandler
-import json
-
 
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
-
 from flask import Flask
 from flask import request
 from flask import render_template
 
-import panja
 from panja import user
 from panja import common
 from panja import room
@@ -43,16 +40,21 @@ quarto_daniel.add_actuator(('door', ('exordial_board', 1)))
 quarto_laura = room.Room('quarto_laura')
 quarto_laura.add_actuator(('light', ('exordial_board', 3)))
 
+banheiro = room.Room('banheiro')
+banheiro.add_actuator(('light', ('exordial_board', 2)))
+
 # Hardcoded users
 daniel = user.User('Daniel', 'danielbibit', 'danielbibit@gmail.com', 'senha12345', True)
 laura = user.User('Laura', 'laura', 'laura@email.com', 'senhafraca', False)
 root = user.User('root', 'root', 'root@panja.com.br', 'root', True)
 
+# Insert hardcoded objects on the common module
 common.modules.append(board)
 common.modules.append(sensor)
 
 common.rooms.append(quarto_daniel)
 common.rooms.append(quarto_laura)
+common.rooms.append(banheiro)
 
 common.users.append(daniel)
 common.users.append(laura)
@@ -103,8 +105,7 @@ def main():
 @app.route('/test', methods=['GET', 'POST'])
 def test():
     room_model = tools.generate_server_model()
-
-    return render_template('layout.html', rooms=room_model)
+    return render_template('dashboard.html', rooms=room_model)
 
 
 @app.route('/', methods=['GET'])
@@ -124,17 +125,24 @@ def logout():
 
 @app.route('/webclient', methods=['GET'])
 def web_client():
-    return app.send_static_file('webclient.html')
+    room_model = tools.generate_server_model()
+
+    return render_template('layout.html', rooms=room_model)
 
 
 @app.route('/clients', methods=['GET', 'POST'])
 def clients():
     print(request.form)
-    print(request.args)
-    # room = tools.get_room(request.form['room'])
-    # room.  
-    if request.args.get('action') == 'toggle':
-        board.toggle_relay(int(request.args.get('args')))
+    json_data = request.get_json()
+    print(json_data)
+
+    if json_data != None:
+        if json_data['action'] == 'toggle' and json_data['device'] == 'ACTUATOR':
+            room = tools.get_room(json_data['room'])
+
+            for device in room.actuators:
+                if device[0] == json_data['name']:
+                    tools.get_module(device[1][0]).toggle_relay(device[1][1])
         return 'done'
     elif request.form['action'] == 'toggle':
         board.toggle_relay(int(request.form['args']))
@@ -185,5 +193,4 @@ def ifttt_service():
 
 
 if __name__ == '__main__':
-    print(panja.__version__)
     app.run(host='0.0.0.0', threaded=True)
