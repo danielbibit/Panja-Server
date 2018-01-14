@@ -21,18 +21,17 @@ def get_user(name):
             return user
     return None
 
+def get_all_devices():
+    l = []
+    for room in common.rooms:
+        for device in room.devices:
+            l.append(device)
+
+    return l
 
 def generate_all_room_status():
     dic = {}
     for room in common.rooms:
         dic[room.name] = room.devices_status()
-
-    return dic
-
-
-def generate_server_model():
-    dic = {}
-
-    dic['rooms'] = generate_all_room_status()
 
     return dic

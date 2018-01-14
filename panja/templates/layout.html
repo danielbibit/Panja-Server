@@ -33,15 +33,11 @@
             
         <div>
             <h1>Panja! Experimental Webclient</h1>
-            {% for room_name, room in rooms['rooms'].items() %}
+            {% for room_name, room in rooms.items() %}
                 <h2> {{ room_name }} </h2>
                 <h3>::Actuators::</h3>
                 {% for label, state in room['ACTUATORS'].items() %}
                     <h4> {{ label }} : {{ state }} : <button type="button" onclick="sendAction('{{room_name}}', 'ACTUATOR', '{{label}}', 'toggle')">toggle</button> </h4>
-                {% endfor %}
-                <h3>::Sensors::</h3>
-                {% for label, value in room['SENSORS'].items() %}
-                    <h4> {{ label }} : {{ value }} </h4>
                 {% endfor %}
                 <br>
             {% else %}

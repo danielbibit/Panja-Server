@@ -1,5 +1,7 @@
 from passlib.hash import pbkdf2_sha256 as sha
 
+from panja import common
+
 
 class User():
     
@@ -9,6 +11,7 @@ class User():
         self.email = email
         self.password = sha.hash(password)
         self.online_acess = online_acess
+        common.users.append(self)
 
     def authenticate(self, password):
         return sha.verify(password, self.password)

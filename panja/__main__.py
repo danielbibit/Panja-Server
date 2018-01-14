@@ -18,47 +18,29 @@ from panja import room
 from panja import tools
 from panja.modules import relay_board
 from panja.modules import sensor_module_m1
+from panja.devices import switch
 
 
 app = Flask(__name__)
 
-HOST, PORT = "panja-server", 9997
-
-# Harcoded panja modules
+sensors = 's'
 board = relay_board.RelayBoard('http://esp-2', 'mykey', 'exordial_board', 4)
-sensor = sensor_module_m1.SensorModule('http://esp-3', 'anotherfreakingkey', 'einstein')
 
-# Hardcoded panja rooms
 quarto_daniel = room.Room('quarto_daniel')
-quarto_daniel.add_sensor(('einstein', 'IR'))
-quarto_daniel.add_sensor(('einstein', 'TEMP'))
-quarto_daniel.add_sensor(('einstein', 'HUMI'))
-quarto_daniel.add_sensor(('einstein', 'PRESENCE')) 
-quarto_daniel.add_actuator(('light', ('exordial_board', 0)))
-quarto_daniel.add_actuator(('door', ('exordial_board', 1)))
-        
+quarto_daniel.devices.append(switch.Switch('luz', board, 0))
+quarto_daniel.devices.append(switch.Switch('porta', board, 1))
+
 quarto_laura = room.Room('quarto_laura')
-quarto_laura.add_actuator(('light', ('exordial_board', 3)))
+quarto_laura.devices.append(switch.Switch('luz', board, 2))
 
 banheiro = room.Room('banheiro')
-banheiro.add_actuator(('light', ('exordial_board', 2)))
+banheiro.devices.append(switch.Switch('luz', board, 3))
 
-# Hardcoded users
+# # Hardcoded users
 daniel = user.User('Daniel', 'danielbibit', 'danielbibit@gmail.com', 'senha12345', True)
 laura = user.User('Laura', 'laura', 'laura@email.com', 'senhafraca', False)
 root = user.User('root', 'root', 'root@panja.com.br', 'root', True)
 
-# Insert hardcoded objects on the common module
-common.modules.append(board)
-common.modules.append(sensor)
-
-common.rooms.append(quarto_daniel)
-common.rooms.append(quarto_laura)
-common.rooms.append(banheiro)
-
-common.users.append(daniel)
-common.users.append(laura)
-common.users.append(root)
 
 def poller():
     while True:
@@ -68,22 +50,10 @@ def poller():
             module.sync()
 
         print('alive')
-        # app.logger.info('alive')
-        print(json.dumps(tools.generate_server_model(), sort_keys=True, indent=4))
+        print(json.dumps(tools.generate_all_room_status(), sort_keys=True, indent=4))
 
 
 def main():
-    # handler = RotatingFileHandler('foo.log', maxBytes=10000, backupCount=1)
-    # handler.setLevel(logging.INFO)
-    # app.logger.addHandler(handler)
-    
-    # logging.basicConfig(
-    #     filename=common.PANJADIR + '/../logs/main.log', 
-    #     level=logging.DEBUG, 
-    #     format='%(levelname)s : %(asctime)s : %(message)s', 
-    #     datefmt='%d/%m %H:%M'
-    # )
-    
     if not os.path.isfile(common.PANJADIR + '/config.json'):
         print(common.error_strings['CONFIG_USER_NOT_FOUND'])
         exit()
@@ -104,7 +74,7 @@ def main():
 
 @app.route('/test', methods=['GET', 'POST'])
 def test():
-    room_model = tools.generate_server_model()
+    room_model = tools.generate_all_room_status()
     return render_template('dashboard.html', rooms=room_model)
 
 
@@ -125,12 +95,12 @@ def logout():
 
 @app.route('/webclient', methods=['GET'])
 def web_client():
-    room_model = tools.generate_server_model()
+    room_model = tools.generate_all_room_status()
 
     return render_template('layout.html', rooms=room_model)
 
 
-@app.route('/clients', methods=['GET', 'POST'])
+@app.route('/clients', methods=['POST'])
 def clients():
     print(request.form)
     json_data = request.get_json()
@@ -140,15 +110,33 @@ def clients():
         if json_data['action'] == 'toggle' and json_data['device'] == 'ACTUATOR':
             room = tools.get_room(json_data['room'])
 
-            for device in room.actuators:
-                if device[0] == json_data['name']:
-                    tools.get_module(device[1][0]).toggle_relay(device[1][1])
+            for device in room.devices:
+                if device.name == json_data['name']:
+                    device.toggle()
+
         return 'done'
+    ## gambs
     elif request.form['action'] == 'toggle':
-        board.toggle_relay(int(request.form['args']))
+        devices = tools.get_all_devices()
+
+        for device in devices:
+            if device.relay_board_number == int(request.form['args']):
+                device.toggle()
+                break
+
         return 'done'
     else:    
         return 'fail modules'
+
+
+@app.route('/clients/rooms', methods=['GET','POST'])
+def handle_room():
+    return 'room'
+
+
+@app.route('/clients/rooms/<idd>/<ccc>', methods=['GET','POST'])
+def handle_room_idd(idd, ccc):
+    return 'your romm ' + str(idd) + str(ccc)
 
 
 @app.route('/modules', methods=['POST'])
@@ -161,6 +149,7 @@ def modules():
         for module in common.modules:
             if module.name == json_data['name']:
                 module.process_data(json_data)
+                break
 
         return 'thanks for being a moduled'
     except KeyError as e:

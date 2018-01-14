@@ -1,7 +1,5 @@
 {
     "POLL_INTERVAL" : 60,
-    "SERVER_HOSTNAME" : "",
-    "SERVER_PORT" : 9997,
     "ROOT_PASSWORD" : "pswd",
     "CONFIG_FILE_LOCATION" : "",
     "LOGS_DIRECTORY" : "",
