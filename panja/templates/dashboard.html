@@ -10,31 +10,37 @@
     <title>PanjaWebclient</title>
 
     <!-- Bootstrap core CSS -->
-    <link href="static/bootstrap/css/bootstrap.min.css" rel="stylesheet">
+    <!-- <link href="static/bootstrap/css/bootstrap.min.css" rel="stylesheet"> -->
+    <link href="{{ url_for('static', filename='bootstrap/css/bootstrap.min.css') }}" rel="stylesheet">
 
     <!-- Custom styles for this template -->
-    <link href="static/dashboard.css" rel="stylesheet">
+    <link href="{{ url_for('static', filename='dashboard.css') }}" rel="stylesheet">
   </head>
 
   <body>
       <script>
-          function sendAction(room, action, args) {
-              var xhttp = new XMLHttpRequest();
-              xhttp.onreadystatechange = function() {
-                  if (this.readyState == 4 && this.status == 200) {
-                      document.getElementById("demo").innerHTML = this.responseText;
-                  }
-              };
-              xhttp.open("POST", "/clients", true);
-              xhttp.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
-              xhttp.send("action=toggle&args=0");
-              // xhttp.send("room="+room+"&action="+action+"&args="+args)
-              location.reload(true);
-          }
+          function sendAction(room, device, name, action) {
+            var request = new Object();
+            request.room = room;
+            request.device = device;
+            request.name = name;
+            request.action = action;
 
-          function loadRoom(room_name){
+            var xhttp = new XMLHttpRequest();
+            xhttp.onreadystatechange = function() {
+                if (this.readyState == 4 && this.status == 200) {
+                    //location.reload(true);
+                }
+            };
+            //xhttp.open("POST", "/clients", true);
+            xhttp.open("POST", "{{ url_for('clients') }}", true);
+            xhttp.setRequestHeader("Content-Type", "application/json");
+            xhttp.send(JSON.stringify(request));
             
-          }
+            setTimeout(function(){
+                location.reload(true);
+            }, 300);          
+          } 
       </script>
     <header>
       <nav class="navbar navbar-expand-md navbar-dark fixed-top bg-dark">
@@ -46,7 +52,7 @@
         <div class="collapse navbar-collapse" id="navbarsExampleDefault">
           <ul class="navbar-nav mr-auto">
             <li class="nav-item active">
-              <a class="nav-link" href="#">Home <span class="sr-only">(current)</span></a>
+              <a class="nav-link" href="{{ url_for('test') }}">Home <span class="sr-only">(current)</span></a>
             </li>
             <li class="nav-item">
               <a class="nav-link" href="#">Settings</a>
@@ -77,9 +83,9 @@
 
           
           <ul class="nav nav-pills flex-column">
-            {% for room_name, room in rooms['rooms'].items() %}
+            {% for room_name, room in rooms.items() %}
               <li class="nav-item">
-                <a class="nav-link" href="#"> {{ room_name }} </a>
+                <a class="nav-link {% if selected_room_name == room_name %}active{% endif %}" href="{{ url_for('clients') }}/room/{{room_name}}"> {{ room_name }}  </a>
               </li>
             {% endfor %}
           </ul>
@@ -88,54 +94,31 @@
 
         <main role="main" class="col-sm-9 ml-sm-auto col-md-10 pt-3">
           <h1>Dashboard</h1>
-
-          <h2>Sensors</h2>
-          <div class="table-responsive">
-            <table class="table table-striped">
-              <thead>
-                <tr>
-                  <th>#</th>
-                  <th>Header</th>
-                  <th>Header</th>
-                  <th>Header</th>
-                  <th>Header</th>
-                </tr>
-              </thead>
-              <tbody>
-                <tr>
-                  <td>1,001</td>
-                  <td>Lorem</td>
-                  <td>ipsum</td>
-                  <td>dolor</td>
-                  <td>sit</td>
-                </tr>
-              </tbody>
-            </table>
-          </div>
-
-          <h2>Actuators</h2>
-          <div class="table-responsive">
-            <table class="table table-striped">
-              <thead>
-                <tr>
-                  <th>#</th>
-                  <th>Header</th>
-                  <th>Header</th>
-                  <th>Header</th>
-                  <th>Header</th>
-                </tr>
-              </thead>
-              <tbody>
-                <tr>
-                  <td>1,001</td>
-                  <td>Lorem</td>
-                  <td>ipsum</td>
-                  <td>dolor</td>
-                  <td>sit</td>
-                </tr>
-              </tbody>
-            </table>
-          </div>
+          {% if room == None %}
+            <h2>Isso aqui</h2>
+          {% else %}
+            <h2>Actuators</h2>
+            <div class="table-responsive">
+              <table class="table table-striped">
+                <thead>
+                  <tr>
+                    <th>Label</th>
+                    <th>State</th>
+                    <th>Action</th>
+                  </tr>
+                </thead>
+                {% for label, state in room['ACTUATORS'].items() %}
+                  <tbody>
+                    <tr>
+                      <td> {{ label }} </td>
+                      <td> {{ state }} </td>
+                      <td> <button type="button" class="btn btn-primary" onclick="sendAction('{{selected_room_name}}', 'ACTUATOR', '{{label}}', 'toggle')">toggle</button> </td>
+                    </tr>
+                  </tbody>
+                {% endfor %}
+              </table>
+            </div>
+          {% endif %}
         </main>
       </div>
     </div>
@@ -149,8 +132,9 @@
     <!-- <script src="../../../../dist/js/bootstrap.min.js"></script> -->
         <!-- Placed at the end of the document so the pages load faster -->
     <script src="https://code.jquery.com/jquery-3.2.1.slim.min.js" integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN" crossorigin="anonymous"></script>
-    <script>window.jQuery || document.write('<script src="static/bootstrap/js/jquery-slim.min.js"><\/script>')</script>
-    <script src="static/bootstrap/js/popper.min.js"></script>
-    <script src="static/bootstrap/js/bootstrap.min.js"></script>
+    <!-- <script>window.jQuery || document.write('<script src="static/bootstrap/js/jquery-slim.min.js"><\/script>')</script> -->
+    <script>window.jQuery || document.write('<script src="{% raw %} {{ url_for(\'static\', filename=\'bootstrap/js/jquery-slim.min.js\') }} {% endraw %}"><\/script>')</script>
+    <scritp src="{{ url_for('static', filename='bootstrap/js/popper.min.js') }}"></scritp>
+    <scritp src="{{ url_for('static', filename='bootstrap/js/bootstrap.min.js') }}"></scritp>
   </body>
 </html>

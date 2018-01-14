@@ -17,7 +17,7 @@ from panja import common
 from panja import room
 from panja import tools
 from panja.modules import relay_board
-from panja.modules import sensor_module_m1
+from panja.modules import sensor_module
 from panja.devices import switch
 
 
@@ -75,7 +75,7 @@ def main():
 @app.route('/test', methods=['GET', 'POST'])
 def test():
     room_model = tools.generate_all_room_status()
-    return render_template('dashboard.html', rooms=room_model)
+    return render_template('dashboard.html', rooms=room_model, room=None)
 
 
 @app.route('/', methods=['GET'])
@@ -97,7 +97,7 @@ def logout():
 def web_client():
     room_model = tools.generate_all_room_status()
 
-    return render_template('layout.html', rooms=room_model)
+    return render_template('dashboard.html', rooms=room_model, room=None)
 
 
 @app.route('/clients', methods=['POST'])
@@ -134,9 +134,18 @@ def handle_room():
     return 'room'
 
 
-@app.route('/clients/rooms/<idd>/<ccc>', methods=['GET','POST'])
-def handle_room_idd(idd, ccc):
-    return 'your romm ' + str(idd) + str(ccc)
+@app.route('/clients/room/<name>', methods=['GET','POST'])
+def handle_room_idd(name):
+    # return 'your romm ' + str(idd) + str(ccc)
+    room_model = tools.generate_all_room_status()
+    
+    return render_template(
+        'dashboard.html', 
+        rooms=room_model, 
+        room=tools.get_room(name).devices_status(), 
+        selected_room_name=name
+    )
+
 
 
 @app.route('/modules', methods=['POST'])
