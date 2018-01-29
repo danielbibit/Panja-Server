@@ -6,40 +6,16 @@ import json
 import logging
 from logging.handlers import RotatingFileHandler
 
-from sqlalchemy import create_engine
-from sqlalchemy.orm import sessionmaker
 from flask import Flask
 from flask import request
 from flask import render_template
 
-from panja import user
 from panja import common
-from panja import room
 from panja import tools
-from panja.modules import relay_board
-from panja.modules import sensor_module
-from panja.devices import switch
+from panja import house_config
 
 
 app = Flask(__name__)
-
-sensors = 's'
-board = relay_board.RelayBoard('http://esp-2', 'mykey', 'exordial_board', 4)
-
-quarto_daniel = room.Room('quarto_daniel')
-quarto_daniel.devices.append(switch.Switch('luz', board, 0))
-quarto_daniel.devices.append(switch.Switch('porta', board, 1))
-
-quarto_laura = room.Room('quarto_laura')
-quarto_laura.devices.append(switch.Switch('luz', board, 2))
-
-banheiro = room.Room('banheiro')
-banheiro.devices.append(switch.Switch('luz', board, 3))
-
-# # Hardcoded users
-daniel = user.User('Daniel', 'danielbibit', 'danielbibit@gmail.com', 'senha12345', True)
-laura = user.User('Laura', 'laura', 'laura@email.com', 'senhafraca', False)
-root = user.User('root', 'root', 'root@panja.com.br', 'root', True)
 
 
 def poller():
@@ -58,10 +34,6 @@ def main():
         print(common.error_strings['CONFIG_USER_NOT_FOUND'])
         exit()
 
-    engine = create_engine('sqlite:///' + os.getcwd() +  '/database.db')
-    session = sessionmaker()
-    session.configure(bind=engine)
-
     poller_thread = threading.Thread(target=poller)
     poller_thread.daemon = True
     poller_thread.start()
@@ -74,8 +46,7 @@ def main():
 
 @app.route('/test', methods=['GET', 'POST'])
 def test():
-    room_model = tools.generate_all_room_status()
-    return render_template('dashboard.html', rooms=room_model, room=None)
+    return 'test'
 
 
 @app.route('/', methods=['GET'])
@@ -98,6 +69,23 @@ def web_client():
     room_model = tools.generate_all_room_status()
 
     return render_template('dashboard.html', rooms=room_model, room=None)
+
+
+@app.route('/webclient/settings', methods=['GET'])
+def web_client_settings():
+    return 'yeah'
+
+
+@app.route('/webclient/room/<name>', methods=['GET'])
+def web_client_room(name):
+    room_model = tools.generate_all_room_status()
+
+    return render_template(
+        'dashboard.html',
+        rooms=room_model,
+        room=tools.get_room(name).devices_status(),
+        selected_room_name=name
+    )
 
 
 @app.route('/clients', methods=['POST'])
@@ -125,44 +113,33 @@ def clients():
                 break
 
         return 'done'
-    else:    
+    else:
         return 'fail modules'
 
 
-@app.route('/clients/rooms', methods=['GET','POST'])
-def handle_room():
-    return 'room'
+@app.route('/client/room', methods=['GET', 'POST'])
+def client_room():
+    return json.dumps(tools.generate_all_room_status())
 
 
-@app.route('/clients/room/<name>', methods=['GET','POST'])
-def handle_room_idd(name):
-    # return 'your romm ' + str(idd) + str(ccc)
-    room_model = tools.generate_all_room_status()
-    
-    return render_template(
-        'dashboard.html', 
-        rooms=room_model, 
-        room=tools.get_room(name).devices_status(), 
-        selected_room_name=name
-    )
-
+@app.route('/client/room/<name>', methods=['GET', 'POST'])
+def client_room_name(name):
+    return json.dumps(tools.get_room(name).devices_status())
 
 
 @app.route('/modules', methods=['POST'])
 def modules():
-    try:
-        json_data = request.get_json()
+    json_data = request.get_json()
 
-        print(json_data)
+    print(json_data)
 
-        for module in common.modules:
-            if module.name == json_data['name']:
-                module.process_data(json_data)
-                break
+    for module in common.modules:
+        if module.name == json_data['name']:
+            module.process_data(json_data)
+            break
 
-        return 'thanks for being a moduled'
-    except KeyError as e:
-        return 'thanks for being a useless moduled'
+    return 'thanks for being a moduled'
+
 
 
 @app.route('/services/ifttt', methods=['POST'])
@@ -175,7 +152,7 @@ def ifttt_service():
                 relay = 1
             elif request.form['argument'] == 'light':
                 relay = 0
-                
+
             if request.form['action'] == 'toggle':
                 board.toggle_relay(relay)
             elif request.form['action'] == 'on':
@@ -184,7 +161,7 @@ def ifttt_service():
                 pass
 
             return 'ok'
-        else: 
+        else:
             return 'Invalid'
     else:
         return 'This service only accepts POST request'

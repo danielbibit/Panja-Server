@@ -3,8 +3,8 @@ from passlib.hash import pbkdf2_sha256 as sha
 from panja import common
 
 
-class User():
-    
+class User(object):
+
     def __init__(self, name, nick, email, password, online_acess=False):
         self.name = name
         self.nick = nick

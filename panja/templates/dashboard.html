@@ -7,7 +7,7 @@
     <meta name="author" content="">
     <link rel="icon" href="static/favicon.ico">
 
-    <title>PanjaWebclient</title>
+    <title>Panja Webclient</title>
 
     <!-- Bootstrap core CSS -->
     <!-- <link href="static/bootstrap/css/bootstrap.min.css" rel="stylesheet"> -->
@@ -18,30 +18,31 @@
   </head>
 
   <body>
-      <script>
-          function sendAction(room, device, name, action) {
-            var request = new Object();
-            request.room = room;
-            request.device = device;
-            request.name = name;
-            request.action = action;
+    <script>
+      function sendAction(room, device, name, action) {
+        var request = new Object();
+        request.room = room;
+        request.device = device;
+        request.name = name;
+        request.action = action;
 
-            var xhttp = new XMLHttpRequest();
-            xhttp.onreadystatechange = function() {
-                if (this.readyState == 4 && this.status == 200) {
-                    //location.reload(true);
-                }
-            };
-            //xhttp.open("POST", "/clients", true);
-            xhttp.open("POST", "{{ url_for('clients') }}", true);
-            xhttp.setRequestHeader("Content-Type", "application/json");
-            xhttp.send(JSON.stringify(request));
-            
-            setTimeout(function(){
-                location.reload(true);
-            }, 300);          
-          } 
-      </script>
+        var xhttp = new XMLHttpRequest();
+        xhttp.onreadystatechange = function() {
+          if (this.readyState == 4 && this.status == 200) {
+            //location.reload(true);
+          }
+        };
+        //xhttp.open("POST", "/clients", true);
+        xhttp.open("POST", "{{ url_for('clients') }}", true);
+        xhttp.setRequestHeader("Content-Type", "application/json");
+        xhttp.send(JSON.stringify(request));
+
+        setTimeout(function(){
+          location.reload(true);
+        }, 300);
+      }
+    </script>
+
     <header>
       <nav class="navbar navbar-expand-md navbar-dark fixed-top bg-dark">
         <a class="navbar-brand" href="#">Panja Webclient</a>
@@ -52,7 +53,7 @@
         <div class="collapse navbar-collapse" id="navbarsExampleDefault">
           <ul class="navbar-nav mr-auto">
             <li class="nav-item active">
-              <a class="nav-link" href="{{ url_for('test') }}">Home <span class="sr-only">(current)</span></a>
+              <a class="nav-link" href="{{ url_for('web_client') }}">Home <span class="sr-only">(current)</span></a>
             </li>
             <li class="nav-item">
               <a class="nav-link" href="#">Settings</a>
@@ -71,7 +72,7 @@
     <div class="container-fluid">
       <div class="row">
         <nav class="col-sm-3 col-md-2 d-none d-sm-block bg-light sidebar">
-          
+
           <ul class="nav nav-pills flex-column">
             <li class="nav-item">
               <a class="nav-link active" href="#">Overview <span class="sr-only">(current)</span></a>
@@ -81,11 +82,10 @@
             </li>
           </ul>
 
-          
           <ul class="nav nav-pills flex-column">
             {% for room_name, room in rooms.items() %}
               <li class="nav-item">
-                <a class="nav-link {% if selected_room_name == room_name %}active{% endif %}" href="{{ url_for('clients') }}/room/{{room_name}}"> {{ room_name }}  </a>
+                <a class="nav-link {% if selected_room_name == room_name %}active{% endif %}" href="{{ url_for('web_client') }}/room/{{room_name}}"> {{ room_name }}  </a>
               </li>
             {% endfor %}
           </ul>
@@ -126,11 +126,6 @@
     <!-- Bootstrap core JavaScript
     ================================================== -->
     <!-- Placed at the end of the document so the pages load faster -->
-    <!-- <script src="https://code.jquery.com/jquery-3.2.1.slim.min.js" integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN" crossorigin="anonymous"></script> -->
-    <!-- <script>window.jQuery || document.write('<script src="../../../../assets/js/vendor/jquery-slim.min.js"><\/script>')</script> -->
-    <!-- <script src="../../../../assets/js/vendor/popper.min.js"></script> -->
-    <!-- <script src="../../../../dist/js/bootstrap.min.js"></script> -->
-        <!-- Placed at the end of the document so the pages load faster -->
     <script src="https://code.jquery.com/jquery-3.2.1.slim.min.js" integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN" crossorigin="anonymous"></script>
     <!-- <script>window.jQuery || document.write('<script src="static/bootstrap/js/jquery-slim.min.js"><\/script>')</script> -->
     <script>window.jQuery || document.write('<script src="{% raw %} {{ url_for(\'static\', filename=\'bootstrap/js/jquery-slim.min.js\') }} {% endraw %}"><\/script>')</script>

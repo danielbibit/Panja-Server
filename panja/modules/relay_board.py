@@ -17,7 +17,7 @@ class RelayBoard(object):
     def attach_device(self, device):
         if not len(self.devices) < self.number_of_relays:
             raise NameError('Cant attacht more devices')
-        
+
         self.devices.append(device)
 
     def sync(self):
@@ -40,7 +40,7 @@ class RelayBoard(object):
         argument = argument.split(',')
         map(lambda x : int(x), argument)
         print(argument)
-   
+
         for n, state in enumerate(argument):
             for device in self.devices:
                 if device.relay_board_number == n:

@@ -1,11 +1,7 @@
 import requests
-from sqlalchemy import Column, Integer, String
-from sqlalchemy.ext.declarative import declarative_base
-
-Base = declarative_base()
 
 
-class SensorModule():
+class SensorBoard():
     """A class describing a sensor module"""
 
     def __init__(self, url='', key='', name='', sensors_avaliable=[]):
@@ -14,6 +10,9 @@ class SensorModule():
         self.name = name
         self.sensors = []
     
+    def attach_device(self, device):
+        pass
+
     def sync(self):
         r = requests.get(self.url + '/sync', params={'key' : self.key})
         print(r.text)

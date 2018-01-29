@@ -45,3 +45,4 @@ ENV/
 *.log
 *.db
 config.json
+house_config.py

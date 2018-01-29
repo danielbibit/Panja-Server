@@ -5,13 +5,20 @@ class Light(object):
 
 
 class Switch(object):
-    #adress
-    #key
 
-    ##toggle
-    ##on
-    ##off
-    pass
+    def __init__(self, adress, key):
+        self.adress = adress
+        self.key = key
+
+    def toggle(self):
+        pass
+
+    def on(self):
+        pass
+
+    def off(self):
+        pass
+
 
 
 class Sensor(object): # Rfid ?
@@ -31,7 +38,11 @@ class TemperatureSensor(object):
 
 
 class PresenceSensor(object):
-    pass
+
+    def __init__(self, name):
+        self.name = name
+
+        self.last_seen = 0.0
 
 
 class IrReceiver(object):
