@@ -1,3 +1,4 @@
+import os
 import socket
 import struct
 
@@ -9,7 +10,16 @@ class WakeOnLan():
     def __init__(self, name, mac):
         self.name = name
         self.mac = mac
-        self.status = False
+        self.state = False
+
+    def update(self):
+        ping = os.system("ping -c 1 " + self.name)
+        self.state = 1 if ping == 0 else 0
+
+    ################HACK###################
+    def toggle(self):
+        self.send_packet()
+    #######################################
 
     def create_magic_packet(self, macaddress):
         if len(macaddress) == 12:
@@ -31,11 +41,11 @@ class WakeOnLan():
 
 
     def send_packet(self):
-        packet = create_magic_packet(self.mac)
+        packet = self.create_magic_packet(self.mac)
 
         sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
         sock.setsockopt(socket.SOL_SOCKET, socket.SO_BROADCAST, 1)
-        sock.connect((BROADCAST_IP, DEFAULT_PORT))
+        sock.connect((self.BROADCAST_IP, self.DEFAULT_PORT))
 
         sock.send(packet)
 

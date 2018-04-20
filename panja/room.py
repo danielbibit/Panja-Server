@@ -20,12 +20,20 @@ class Room():
     def devices_status(self):
         status = {}
 
+        # for device in self.devices:
+        #     if device is actuator: #WILL NOT WORK
+        #         status['ACTUATORS'][device.name] = device.state
+        #     elif device is sensor: #also not work
+        #         status['SENSORS'][device.name] = device.state
+        #     else:
+        #         pass
+
         devices_dic = {}
         sensors_dic = {}
 
         for device in self.devices:
             devices_dic[device.name] = device.state
-        
+
         status["ACTUATORS"] = devices_dic
 
         return status
