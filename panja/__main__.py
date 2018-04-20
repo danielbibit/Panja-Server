@@ -88,6 +88,7 @@ def web_client_room(name):
     )
 
 
+#TODO must fix this method to use wakeonlan and other devices
 @app.route('/clients', methods=['POST'])
 def clients():
     print(request.form)
@@ -95,15 +96,19 @@ def clients():
     print(json_data)
 
     if json_data != None:
-        if json_data['action'] == 'toggle' and json_data['device'] == 'ACTUATOR':
+        if  json_data['device'] == 'ACTUATOR' and json_data['action'] == 'toggle':
             room = tools.get_room(json_data['room'])
 
             for device in room.devices:
                 if device.name == json_data['name']:
                     device.toggle()
+        #Probable fix
+        elif json['device'] == 'ALGUMOUTRO':
+            pass
 
         return 'done'
-    ## gambs
+
+    ## gambs !!!!!!!!!!!!
     elif request.form['action'] == 'toggle':
         devices = tools.get_all_devices()
 

@@ -16,10 +16,12 @@ class WakeOnLan():
         ping = os.system("ping -c 1 " + self.name)
         self.state = 1 if ping == 0 else 0
 
-    ################HACK###################
+    #####################HACK#########################
+    #######Make this class behave like a switch#######
+    #Must change the GUI to display different devices#
     def toggle(self):
         self.send_packet()
-    #######################################
+    ##################################################
 
     def create_magic_packet(self, macaddress):
         if len(macaddress) == 12:

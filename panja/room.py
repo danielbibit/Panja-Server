@@ -14,8 +14,8 @@ class Room():
     def add_device(self, device):
         self.devices.append(device)
 
-    def add_actuator(self, actuator):
-        self.actuators.append(actuator)
+    #def add_actuator(self, actuator):
+    #    self.actuators.append(actuator)
 
     def devices_status(self):
         status = {}
